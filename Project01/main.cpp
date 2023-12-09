@@ -5,43 +5,73 @@
 using namespace std;
 
 int main() {
-	auto input = "C:\\Users\\dnasp\\Desktop\\ae\\02\\input.txt";
+	auto input = "C:\\Users\\dnasp\\Desktop\\ae\\03\\input.txt";
 	wifstream f(input);
 	if (!f) {
 		cout << "no " << input << " found\\n";
 		return 0;
 	}
-	wstring game, cell;
-	size_t sum = 0;
-	int r{}, rF{}, g{}, gF{}, b{}, bF{}, count{}, min{};
+	wstring cell, sums = L"";;
+	size_t sum = 0; 
+
+	wchar_t a[140][140]{};
+	int r = 0;
 	while (getline(f, cell)) {
-		game = cell.substr(4, cell.find(':') - 4);
-		wcout << "game:" << game << endl;
+		for (size_t i = 0; i < cell.length(); ++i) {
+			a[r][i] = cell[i];
+			//wcout << a[r][i];
+		}
+		++r;
+		//wcout << endl;
+	}
+	bool last = 0;
+	for (size_t i = 0; i <= 140; ++i) {
+		last = (i == 139);
 
-		wstring c = cell.substr(cell.find(':') + 2);
-		wstring v = L"";
+		for (size_t j = 0; j < 140; ++j) {
+			if (a[i][j] >= 48 && a[i][j] <= 57) {
+				sums += a[i][j];
 
-		while (c > L"") {
-			v = c.substr(0, c.find(' ', c[0] == ',' || c[0] == ';' ? 2 : 0));
-			if (v[0] == ',' || v[0] == ';') { v = v.substr(2); c = c.substr(2); }
-			if (c[v.length() + 1] == 'r') {
-				r = stoi(v); if (r >= stoi(v) && rF < stoi(v)) rF = stoi(v);
-				c = c.substr(v.length() + 1 + 3);
-			}
-			else if (c[v.length() + 1] == 'g') {
-				g = stoi(v); if (g >= stoi(v) && gF < stoi(v)) gF = stoi(v);
-				c = c.substr(v.length() + 1 + 5);
-			}
-			else if (c[v.length() + 1] == 'b') {
-				b = stoi(v); if (b >= stoi(v) && bF < stoi(v)) bF = stoi(v);
-				c = c.substr(v.length() + 1 + 4);
+				if (j + 1 < 140 && a[i][j + 1] >= 48 && a[i][j + 1] <= 57) {
+					continue;
+				}
+				
+				if (a[i][j - sums.length()] != 46 && (a[i][j - sums.length()] < 48 || a[i][j - sums.length()] > 57)) {
+					wcout << sums << " " << a[i][j - sums.length()]; //left
+					sum += stoi(sums);
+					sums = L"";
+					wcout << endl;
+				}
+				if (a[i][j + 1] != 46 && (a[i][j + 1] < 48 || a[i][j + 1] > 57)) {
+					wcout << sums << " " << a[i][j + 1]; //right
+					sum += stoi(sums);
+					sums = L"";
+					wcout << endl;
+				}
+				for (size_t k = 0; k < sums.length() + 2; ++k) {
+					if (!last && a[i + 1][j - sums.length() + k] != 46 && (a[i + 1][j - sums.length() + k] < 48 || a[i + 1][j - sums.length() + k] > 57)) {
+						wcout << sums << " " << a[i + 1][j - sums.length() + k]; //down
+						sum += stoi(sums);
+						sums = L"";
+						wcout << endl;
+						break;
+					}
+					if (!i) continue;
+
+					if (a[i - 1][j - sums.length() + k] != 46 && (a[i - 1][j - sums.length() + k] < 48 || a[i - 1][j - sums.length() + k] > 57)) {
+						wcout << sums << " " << a[i - 1][j - sums.length() + k]; //up
+						sum += stoi(sums);
+						sums = L"";
+						wcout << endl;
+						break;
+					}
+					
+				}
+				
+				sums = L"";
 			}
 		}
-		cout << rF << " " << gF << " " << bF << endl;
-		min = rF * gF * bF;
-		r = 0; rF = 0; g = 0; gF = 0; b = 0; bF = 0;
-		wcout << "min: " << min << endl;
-		sum += min;
 	}
-	wcout << "\nsum: " << sum;
+		
+	cout << endl << sum << endl;
 }
